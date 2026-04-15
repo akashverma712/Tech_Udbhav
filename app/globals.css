@@ -24,3 +24,55 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+.glitch-active .glitch-overlay {
+  animation: flash 0.3s ease-out forwards;
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* Portal base */
+.st-portal {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.8), transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* STEP 1: small crack / opening */
+.st-portal-open .st-portal {
+  width: 80px;
+  height: 80px;
+  box-shadow:
+    0 0 20px red,
+    0 0 40px crimson,
+    0 0 80px rgba(255, 0, 0, 0.6);
+  animation: portalPulse 0.4s ease;
+}
+
+/* STEP 2: expand like Upside Down gate */
+.st-portal-expand .st-portal {
+  width: 200vw;
+  height: 200vw;
+  transition: all 0.8s ease-in-out;
+}
+
+/* subtle pulsing */
+@keyframes portalPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
