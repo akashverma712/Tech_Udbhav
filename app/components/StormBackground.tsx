@@ -132,6 +132,7 @@ export default function StormBackground() {
     }
 
     function init() {
+      if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
 

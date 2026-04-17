@@ -54,7 +54,6 @@ export default function SocialSidebar() {
               setDisplayText("");
             }}
           >
-            {/* ICON */}
             <Icon
               className="
                 w-5 h-5 text-red-600
@@ -68,10 +67,8 @@ export default function SocialSidebar() {
               "
             />
 
-            {/* GLITCH TEXT */}
             <div className="relative min-w-[120px] h-5 overflow-hidden">
               
-              {/* BASE TEXT */}
               <span
                 className={`
                   absolute left-0 top-0
@@ -89,7 +86,6 @@ export default function SocialSidebar() {
                 {hovered === item.name ? displayText : ""}
               </span>
 
-              {/* GLITCH RED LAYER */}
               <span
                 className="
                   absolute left-[1px] top-0
@@ -103,7 +99,6 @@ export default function SocialSidebar() {
                 {displayText}
               </span>
 
-              {/* GLITCH BLUE LAYER */}
               <span
                 className="
                   absolute left-[-1px] top-0

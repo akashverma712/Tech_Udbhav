@@ -25,21 +25,17 @@ export default function Loader({ onFinish }: { onFinish: () => void }) {
     const loader = loaderRef.current;
     if (!loader) return;
 
-    // STEP 1: portal open (center tear)
     loader.classList.add("st-portal-open");
 
-    // STEP 2: expand portal
     setTimeout(() => {
       loader.classList.add("st-portal-expand");
     }, 400);
 
-    // STEP 3: fade out everything
     setTimeout(() => {
       loader.style.transition = "opacity 0.8s ease";
       loader.style.opacity = "0";
     }, 900);
 
-    // STEP 4: finish
     setTimeout(() => {
       onFinish();
     }, 1400);
@@ -50,7 +46,6 @@ export default function Loader({ onFinish }: { onFinish: () => void }) {
       ref={loaderRef}
       className="fixed inset-0 z-9999 bg-black flex items-center justify-center overflow-hidden"
     >
-      {/* PORTAL EFFECT */}
       <div className="st-portal" />
 
       <video
