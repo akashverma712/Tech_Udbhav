@@ -4,18 +4,18 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EVENT_CARDS = [
-    {
-        id: 1,
-        tag: "Event 001",
-        title: "ROBO SOCCER",
-        subtitle: "MECHANIZED MADNESS",
-        description:
-          "The arena flickers, bots clash, and survival decides the champion. In this high-stakes soccer battle, only the most cunning and agile machines will prevail.",
-        rating: null,
-        genre: null,
-        age: null,
-        thumb: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=80",
-      },
+  {
+    id: 1,
+    tag: "Event 001",
+    title: "ROBO SOCCER",
+    subtitle: "MECHANIZED MADNESS",
+    description:
+      "The arena flickers, bots clash, and survival decides the champion. In this high-stakes soccer battle, only the most cunning and agile machines will prevail.",
+    rating: null,
+    genre: null,
+    age: null,
+    thumb: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=80",
+  },
   {
     id: 2,
     tag: "Event 010",
@@ -23,9 +23,9 @@ const EVENT_CARDS = [
     subtitle: "CODE THE UPSIDE DOWN",
     description:
       "In the shadows of the Upside Down, code becomes a weapon. Hidden minds compete in a battle where only the unseen logic survives.",
-      rating: null,
-      genre: null,
-      age: null,
+    rating: null,
+    genre: null,
+    age: null,
     thumb: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
   },
   {
@@ -45,7 +45,7 @@ const EVENT_CARDS = [
     tag: "Event 100",
     title: "COMING SOON",
     subtitle: "DARK SIGNAL",
-    description:"Something is coming… and it’s not from this world. The gate is weakening. Stay ready.",
+    description: "Something is coming… and it’s not from this world. The gate is weakening. Stay ready.",
     rating: null,
     genre: null,
     age: null,
@@ -56,7 +56,7 @@ const EVENT_CARDS = [
     tag: "Event 101",
     title: "COMING SOON",
     subtitle: "DARK SIGNAL",
-    description:"Something is coming… and it’s not from this world. The gate is weakening. Stay ready.",
+    description: "Something is coming… and it’s not from this world. The gate is weakening. Stay ready.",
     rating: null,
     genre: null,
     age: null,
@@ -67,7 +67,7 @@ const EVENT_CARDS = [
     tag: "Event 110",
     title: "COMING SOON",
     subtitle: "DARK SIGNAL",
-    description:"Something is coming… and it’s not from this world. The gate is weakening. Stay ready.",
+    description: "Something is coming… and it’s not from this world. The gate is weakening. Stay ready.",
     rating: null,
     genre: null,
     age: null,
@@ -187,7 +187,6 @@ export default function EventDescription() {
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 md:px-12 pt-8 pb-16 md:pt-12 md:pb-16">
-
         <div className="mb-8 md:mb-10 flex flex-col items-start select-none">
           <h2
             className="font-black uppercase mb-4 tracking-[-0.02em]"
@@ -212,9 +211,7 @@ export default function EventDescription() {
         </div>
 
         <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-10">
-
           <div className="flex-1 min-w-0 flex flex-col gap-4 select-none order-2 md:order-1 md:pt-2">
-
             <AnimatePresence mode="wait" custom={dir}>
               <motion.div key={card.id + "b"} custom={dir} variants={slide}
                 initial="enter" animate="center" exit="exit"
@@ -337,7 +334,6 @@ export default function EventDescription() {
           </div>
 
           <div className="flex-shrink-0 order-1 md:order-2 w-full md:w-auto">
-
             <div
               className="hidden md:flex gap-3 items-stretch"
               style={{ height: "390px" }}
@@ -351,8 +347,6 @@ export default function EventDescription() {
                   boxShadow: "0 0 20px rgba(220,38,38,0.12), 0 16px 44px rgba(0,0,0,0.85)",
                 }}
               >
-                
-
                 <AnimatePresence mode="wait" custom={dir}>
                   <motion.div key={card.id + "pi"}
                     initial={{ opacity: 0, scale: 1.04 }}
@@ -406,7 +400,6 @@ export default function EventDescription() {
             </div>
 
             <div className="flex flex-col gap-2.5 md:hidden">
-
               <div
                 className="relative w-full rounded-xl overflow-hidden"
                 style={{
@@ -570,27 +563,6 @@ export default function EventDescription() {
             </span>
           </div>
         </div>
-      </div>
-
-      <div
-        className="hidden md:flex fixed bottom-4 left-1/2 z-30 gap-1.5 rounded-full px-3 py-1.5"
-        style={{
-          transform: "translateX(-50%)",
-          background: "rgba(0,0,0,0.55)",
-          backdropFilter: "blur(8px)",
-          border: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        {EVENT_CARDS.map((_, i) => (
-          <button key={i} onClick={() => go(i)}
-            className="rounded-full transition-all duration-300"
-            style={{
-              width: i === active ? "18px" : "5px",
-              height: "5px",
-              background: i === active ? "#dc2626" : "rgba(255,255,255,0.2)",
-            }}
-          />
-        ))}
       </div>
     </div>
   );
