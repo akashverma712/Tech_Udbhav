@@ -84,150 +84,127 @@ export default function Home() {
 
 function MainPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const touchStartY = useRef<number | null>(null);
-  const lastTouchY = useRef<number | null>(null);
-
   const stackRef = useRef<HTMLDivElement | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  
   const [maxScroll, setMaxScroll] = useState(5.5);
-
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  useEffect(() => {
-    setIsTouchDevice(
-      "ontouchstart" in window || navigator.maxTouchPoints > 0
-    );
-  }, []);
+  const [showDefaultCursor, setShowDefaultCursor] = useState(false);
 
   const mouseX = useMotionValue(50);
   const mouseY = useMotionValue(50);
   const radius = useMotionValue(0);
-
-  const spring = { damping: 40, stiffness: 200 };
-  const smoothX = useSpring(mouseX, spring);
-  const smoothY = useSpring(mouseY, spring);
-  const smoothRadius = useSpring(radius, { damping: 30, stiffness: 150 });
-
   const scrollProgress = useMotionValue(0);
+
+  const springConfig = { damping: 40, stiffness: 200 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
+  const smoothRadius = useSpring(radius, { damping: 30, stiffness: 150 });
   const smoothScroll = useSpring(scrollProgress, {
     damping: 50,
-    stiffness: 80,
+    stiffness: 100,
     restDelta: 0.001,
   });
 
-  const [showDefaultCursor, setShowDefaultCursor] = useState(false);
-
   useEffect(() => {
+    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
     const computeMax = () => {
       if (!stackRef.current) return;
       const totalH = stackRef.current.scrollHeight;
       const viewH = window.innerHeight;
       const overflow = Math.max(0, totalH - viewH);
-      const pxPerUnit = (4.1 * viewH) / 5.5;
+      const pxPerUnit = viewH; 
       const computed = overflow / pxPerUnit;
-      setMaxScroll(Math.max(5.5, computed));
+      setMaxScroll(computed + 1); 
     };
 
+    const resizeObserver = new ResizeObserver(computeMax);
+    if (stackRef.current) resizeObserver.observe(stackRef.current);
+    
     computeMax();
     window.addEventListener("resize", computeMax);
-    return () => window.removeEventListener("resize", computeMax);
+    return () => {
+      window.removeEventListener("resize", computeMax);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   const fullStackY = useTransform(
     smoothScroll,
-    [0, 1.2, 2.0, 3.0, 3.5, 4.2, 4.8, 5.5],
-    ["0vh", "0vh", "-100vh", "-100vh", "-200vh", "-300vh", "-410vh", "-490vh"]
+    [0, 1.2, 2.2, 3.2, 3.8, 4.5, 5.2, maxScroll],
+    ["0vh", "0vh", "-100vh", "-100vh", "-200vh", "-300vh", "-400vh", `-${(maxScroll - 1) * 100}vh`]
   );
 
   useEffect(() => {
-    if (!isTouchDevice) {
-      const handleMouseMove = (e: MouseEvent) => {
-        if (!containerRef.current) return;
-        const { left, top, width, height } =
-          containerRef.current.getBoundingClientRect();
+    const handleWheel = (e: WheelEvent) => {
+      if (e.cancelable) e.preventDefault();
+      const sensitivity = 0.0008;
+      const next = Math.max(0, Math.min(maxScroll, scrollProgress.get() + e.deltaY * sensitivity));
+      scrollProgress.set(next);
+      setShowDefaultCursor(next > 1.1);
+    };
 
-        mouseX.set(((e.clientX - left) / width) * 100);
-        mouseY.set(((e.clientY - top) / height) * 100);
-
-        const cur = scrollProgress.get();
-        setShowDefaultCursor(cur > 1.1);
-
-        if (cur < 1) {
-          radius.set(120);
-          if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          timeoutRef.current = setTimeout(() => radius.set(0), 100);
-        } else {
-          radius.set(0);
-        }
-      };
-
-      const handleWheel = (e: WheelEvent) => {
-        if (e.cancelable) e.preventDefault();
-        const delta = e.deltaY * 0.0006;
-        const next = Math.max(0, Math.min(maxScroll, scrollProgress.get() + delta));
-        scrollProgress.set(next);
-        setShowDefaultCursor(next > 1.1);
-      };
-
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("wheel", handleWheel, { passive: false });
-
-      return () => {
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("wheel", handleWheel);
-      };
-    }
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+      mouseX.set(((e.clientX - left) / width) * 100);
+      mouseY.set(((e.clientY - top) / height) * 100);
+      
+      const cur = scrollProgress.get();
+      if (cur < 1.2) {
+        radius.set(150);
+      } else {
+        radius.set(0);
+      }
+    };
 
     const handleTouchStart = (e: TouchEvent) => {
       touchStartY.current = e.touches[0].clientY;
-      lastTouchY.current = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (touchStartY.current === null) return;
       if (e.cancelable) e.preventDefault();
-      if (lastTouchY.current === null) return;
+      
       const currentY = e.touches[0].clientY;
-      const deltaY = lastTouchY.current - currentY;
-      lastTouchY.current = currentY;
-      const delta = deltaY * 0.006;
-      const next = Math.max(0, Math.min(maxScroll, scrollProgress.get() + delta));
+      const deltaY = touchStartY.current - currentY;
+      touchStartY.current = currentY; 
+      
+      const sensitivity = 0.003;
+      const next = Math.max(0, Math.min(maxScroll, scrollProgress.get() + deltaY * sensitivity));
       scrollProgress.set(next);
+      setShowDefaultCursor(next > 1.1);
     };
 
-    const handleTouchEnd = () => {
-      touchStartY.current = null;
-      lastTouchY.current = null;
-    };
-
-    document.addEventListener("touchstart", handleTouchStart, { passive: false });
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     return () => {
-      document.removeEventListener("touchstart", handleTouchStart);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
     };
-  }, [isTouchDevice, scrollProgress, mouseX, mouseY, radius, maxScroll]);
+  }, [maxScroll, scrollProgress, mouseX, mouseY, radius]);
 
-  const portalScale = useTransform(smoothScroll, [0.3, 1.8], [0, 5000]);
+  const portalScale = useTransform(smoothScroll, [0.3, 1.5], [0, 5000]);
   const combinedRadius = useTransform(
     [smoothRadius, portalScale],
     ([r, p]) => (r as number) + (p as number)
   );
   const clipPath = useMotionTemplate`circle(${combinedRadius}px at ${smoothX}% ${smoothY}%)`;
 
-  const leftX = useTransform(smoothScroll, [0, 0.25], ["-120%", "0%"]);
-  const rightX = useTransform(smoothScroll, [0, 0.25], ["120%", "0%"]);
-  const bottomY = useTransform(smoothScroll, [0, 0.25], ["120%", "0%"]);
+  const leftX = useTransform(smoothScroll, [0, 0.3], ["-120%", "0%"]);
+  const rightX = useTransform(smoothScroll, [0, 0.3], ["120%", "0%"]);
+  const bottomY = useTransform(smoothScroll, [0, 0.3], ["120%", "0%"]);
 
   return (
     <div
-      className={`relative h-screen w-full overflow-hidden bg-black transition-all duration-300 ${
-        showDefaultCursor
-          ? "cursor-default"
-          : isTouchDevice
-          ? "cursor-default"
-          : "cursor-none"
+      className={`relative h-screen w-full overflow-hidden bg-black ${
+        showDefaultCursor || isTouchDevice ? "cursor-default" : "cursor-none"
       }`}
     >
       <motion.div
@@ -248,7 +225,7 @@ function MainPage() {
         <SocialSidebar />
       </motion.div>
 
-      <motion.div ref={stackRef} style={{ y: fullStackY }} className="w-full">
+      <motion.div ref={stackRef} style={{ y: fullStackY }} className="w-full will-change-transform">
         <div ref={containerRef} className="relative h-screen w-full bg-black overflow-hidden">
           <div className="absolute inset-0">
             <Image src="/light2.png" alt="Base" fill className="object-cover" priority />
@@ -295,13 +272,13 @@ function MainPage() {
             style={{ x: leftX }}
             className="absolute left-[-5%] portrait:left-[-20%] top-1/2 -translate-y-1/2 w-full md:w-auto h-full overflow-visible"
           >
-            <Image src="/tleft.png" alt="left" width={800} height={3000} className="w-full h-full object-cover overflow-visible" />
+            <Image src="/tleft.png" alt="left" width={800} height={3000} className="w-full h-full object-cover" />
           </motion.div>
           <motion.div
             style={{ x: rightX }}
             className="absolute right-[-5%] portrait:right-[-20%] top-1/2 -translate-y-1/2 w-full md:w-auto h-full overflow-visible"
           >
-            <Image src="/tright.png" alt="right" width={800} height={3000} className="w-full h-full object-cover overflow-visible" />
+            <Image src="/tright.png" alt="right" width={800} height={3000} className="w-full h-full object-cover" />
           </motion.div>
           <motion.div
             style={{ y: bottomY }}
